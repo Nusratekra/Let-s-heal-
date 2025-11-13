@@ -7,26 +7,29 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+# Automatically install chromedriver
 chromedriver_autoinstaller.install()
 
+# ------------------- Fixtures -------------------
 @pytest.fixture(scope="module")
-
 def driver():
     driver = webdriver.Chrome()
     driver.maximize_window()
     yield driver
     driver.quit()
-    
-def test_backend_is_running(): 
+
+# ------------------- Backend Health Check -------------------
+def test_backend_is_running():
     backend_url = "http://127.0.0.1:8000/api/customer_signup"
     print("\nChecking if backend is running...")
     try:
         response = requests.get(backend_url, timeout=5)
-        assert response.status_code in [200, 301, 302, 404,405]
+        assert response.status_code in [200, 301, 302, 404, 405]
         print("✓ Backend is running!")
     except Exception as e:
         pytest.fail(f"Backend not reachable: {e}")
 
+# ------------------- Customer Signup Test -------------------
 def test_customer_signup(driver):
     frontend_url = "http://localhost:5173/signup"
     print("\nStarting customer signup test...")
@@ -46,8 +49,8 @@ def test_customer_signup(driver):
     driver.find_element(By.XPATH, "//button[contains(text(), 'Customer')]").click()
 
     # Fill form
-    name.send_keys("rulu")
-    email.send_keys("rulu@gmail.com")
+    name.send_keys("Hasnine")
+    email.send_keys("22201269@uap-bd.edu")
     phone.send_keys("01711111111")
     age.send_keys("22")
     password.send_keys("123456")        
@@ -65,10 +68,11 @@ def test_customer_signup(driver):
     submit_button.click()
     print("Signup form submitted")
 
- # Wait for redirect to login page
-    time.sleep(10)  # small wait before checking URL
-    current_url = driver.current_url
-
-    # Assert redirected to login page
-    assert "login" in current_url.lower(), f"Signup failed — still on {current_url}"
-    print(f"✓ Customer signup successful! Redirected to {current_url}")
+    # Wait for redirect to login page (max 20 seconds)
+    try:
+        wait.until(EC.url_contains("login"))
+        current_url = driver.current_url
+        print(f"✓ Customer signup successful! Redirected to {current_url}")
+    except:
+        current_url = driver.current_url
+        raise AssertionError(f"Signup failed — still on {current_url}")

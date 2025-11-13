@@ -41,8 +41,8 @@ def test_customer_login(driver):
     driver.find_element(By.XPATH, "//button[contains(text(), 'Customer')]").click()
 
     # Fill credentials
-    email.send_keys("nabila@gmail.com")
-    password.send_keys("1234")
+    email.send_keys("maliharimi01@uap-bd.edu")
+    password.send_keys("123456")
 
     # Click Sign In
     driver.find_element(By.XPATH, "//button[contains(text(), 'Sign in as Customer')]").click()
